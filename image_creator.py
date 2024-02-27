@@ -1,3 +1,5 @@
+from math import sqrt
+
 import cv2
 import numpy as np
 
@@ -5,8 +7,8 @@ import numpy as np
 image = np.ones((1000, 1000, 3), dtype=np.uint8) * 255
 
 # Draw shapes
-#cv2.circle(image, (100, 100), 50, (255, 0, 0), -1)  # Circle (blue)
-#cv2.rectangle(image, (150, 250), (180, 200), (0, 255, 0), -1)  # Rectangle (green)
+# cv2.circle(image, (100, 100), 50, (255, 0, 0), -1)  # Circle (blue)
+# cv2.rectangle(image, (150, 250), (180, 200), (0, 255, 0), -1)  # Rectangle (green)
 trapezoid_coords = np.array([[(100, 100), (50, 150), (200, 150), (150, 100)]], dtype=np.int32)
 cv2.polylines(image, [trapezoid_coords], isClosed=True, color=(0, 255, 0), thickness=2)
 
@@ -34,7 +36,7 @@ cv2.polylines(image, [triangle2_coords], isClosed=True, color=(0, 255, 0), thick
 triangle3_coords = np.array([[(230, 710), (150, 710), (150, 790)]], dtype=np.int32)
 cv2.polylines(image, [triangle3_coords], isClosed=True, color=(0, 255, 0), thickness=2)
 
-triangle4_coords = np.array([[(630, 510), (750, 510), (750, 390)]], dtype=np.int32)
+triangle4_coords = np.array([[[400, 200], [500, 200], [450, 113]]], dtype = np.int32)
 cv2.polylines(image, [triangle4_coords], isClosed=True, color=(0, 255, 0), thickness=2)
 # Save the image
 cv2.imwrite("image.jpg", image)
