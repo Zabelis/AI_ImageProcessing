@@ -11,74 +11,62 @@ import numpy as np
 
 class ShapeDetector:
     def __init__(self):
-        pass
+        """
+        Инициализация словаря
+        """
+        self.figures_dict = {}
 
-    def detect(self, c, img):
+    def add_new_figure(self, figure_type):
+        """
+        Увеличение количество фигур
+        :param figure_type:
+        :return:
+        """
+        self.figures_dict[figure_type] = self.figures_dict.get(figure_type, 0) + 1
+
+    def get_figures_count(self):
+        """
+        Получение словаря с количеством фигур
+        :return:
+        """
+        return self.figures_dict
+
+    def detect(self, c):
 
         """
         Функция для определения формы объекта
         :param c:
         :return:
         """
-        shape = "unidentified"
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.04 * peri, True)
-        font = cv2.FONT_HERSHEY_COMPLEX
+
         if len(approx) == 3:
             # Если контур состоит из 3 вершин, то это треугольник
-            n = approx.ravel()
-            i = 0
+            xa, ya, xb, yb, xc, yc = self.get_figure_coordinates(approx)  # выделение координат точек
 
-            letters = {0: 'A', 2: 'B', 4: 'C', 6: "D"}
-            cords = []
-            for j in n:
-                if (i % 2 == 0):
-                    x = n[i]
-                    y = n[i + 1]
-                    cords.extend([x, y])
-                    # String containing the co-ordinates.
-                    string = str(letters[i]) + " " + str(x) + " " + str(y)
-                    # text on remaining co-ordinates.
-                    cv2.putText(img, string, (x, y), font, 0.5, (0, 0, 0))
-                i = i + 1
-            coords = np.around(cords, decimals=-1)
-
-            xa, ya, xb, yb, xc, yc = coords
             side1 = sqrt((xb - xa) ** 2 + (yb - ya) ** 2)
             side2 = sqrt((xc - xb) ** 2 + (yc - yb) ** 2)
             side3 = sqrt((xc - xa) ** 2 + (yc - ya) ** 2)
             if (side1 < side2 + side3) and (side2 < side1 + side3) and (side3 < side1 + side2):
                 if abs(side1 - side2) <= 3 and abs(side2 - side3) <= 3:
-                    shape = "Equilateral triangle"
+                    self.add_new_figure("Equilateral triangle")
+                    return "Equilateral triangle"
                 elif side1 == side2 or side1 == side3 or side2 == side3:
-                    shape = "Isosceles triangle"
+                    self.add_new_figure("Isosceles triangle")
+                    return "Isosceles triangle"
                 elif (side1 ** 2 + side2 ** 2 == side3 ** 2) or (side1 ** 2 + side3 ** 2 == side2 ** 2) or (
                         side2 ** 2 + side3 ** 2 == side1 ** 2):
-                    shape = "Right-angled triangle"
+                    self.add_new_figure("Right-angled triangle")
+                    return "Right-angled triangle"
                 else:
-                    shape = "Triangle"
+                    self.add_new_figure("Triangle")
+                    return "Triangle"
         elif len(approx) == 4:
             # Used to flatted the array containing
             # the co-ordinates of the vertices.
-            n = approx.ravel()
-            i = 0
 
-            letters = {0: 'A', 2: 'B', 4: 'C', 6: "D"}
-            cords = []
-            for j in n:
-                if (i % 2 == 0):
-                    x = n[i]
-                    y = n[i + 1]
-                    cords.extend([x, y])
-                    # String containing the co-ordinates.
-                    string = str(letters[i]) + " " + str(x) + " " + str(y)
-                    # text on remaining co-ordinates.
-                    cv2.putText(img, string, (x, y), font, 0.5, (0, 0, 0))
-                i = i + 1
-            coords = np.around(cords, decimals=-1)
-
-            # shape = determine_quadrilateral_shape(np.array(cords))
-            xa, ya, xb, yb, xc, yc, xd, yd = coords
+            xa, ya, xb, yb, xc, yc, xd, yd = self.get_figure_coordinates(approx)
             eps = 1e-7
             a = eps > abs((xb - xa) * (yc - yd) - (xc - xd) * (yb - ya))
             b = eps > abs((xc - xb) * (yd - ya) - (xd - xa) * (yc - yb))
@@ -87,24 +75,49 @@ class ShapeDetector:
                 if a and b:
                     if eps > abs(sqrt((xc - xa) ** 2 + (yc - ya) ** 2) - sqrt((xd - xb) ** 2 + (yd - yb) ** 2)):
                         if c:
-                            shape = 'Square'
+                            self.add_new_figure('Square')
+                            return 'Square'
                         else:
-                            shape = 'Rectangle'
+                            self.add_new_figure('Rectangle')
+                            return 'Rectangle'
                     else:
                         if c:
-                            shape = 'Rhombus'
+                            self.add_new_figure('Rhombus')
+                            return 'Rhombus'
                         else:
-                            shape = 'Parallelogram'
-
+                            self.add_new_figure('Parallelogram')
+                            return 'Parallelogram'
                 else:
-                    shape = 'Trapezoid'
-
+                    self.add_new_figure('Trapezoid')
+                    return 'Trapezoid'
             else:
-                shape = 'Quadrilateral'
+                self.add_new_figure('Quadrilateral')
+                return 'Quadrilateral'
         elif len(approx) == 5:
-            shape = "Pentagon"
+            self.add_new_figure("Pentagon")
+            return "Pentagon"
+        elif len(approx) == 6:
+            self.add_new_figure("Hexagon")
+            return "Hexagon"
         else:
-            shape = "Circle"
+            self.add_new_figure("Circle")
+            return "Circle"
 
-        # return the name of the shape
-        return shape
+    def get_figure_coordinates(self, approx):
+        """
+        Получение координат фигуры
+        :param approx:
+        :return:
+        """
+        n = approx.ravel() # Получение координат
+
+        i = 0
+        cords = []
+        for j in n:
+            if (i % 2 == 0):
+                x = n[i]
+                y = n[i + 1]
+                cords.extend([x, y])
+            i = i + 1
+        coords = np.around(cords, decimals=-1)
+        return coords
