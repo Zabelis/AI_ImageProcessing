@@ -17,11 +17,11 @@ cv2.fillPoly(image, [trapezoid2_coords], color=(100, 200, 155))
 
 # Draw the square on the image
 cv2.rectangle(image, (500, 500), (550, 550), color=(200, 155, 240), thickness=-1)
-cv2.rectangle(image, (700, 700), (880, 850), color=(210, 50, 100), thickness=-1)
-cv2.rectangle(image, (950, 820), (910, 950), color=(100, 55, 45), thickness=-1)
+cv2.rectangle(image, (700, 700), (880, 850), color=(210, 150, 100), thickness=-1)
+cv2.rectangle(image, (950, 820), (910, 950), color=(100, 255, 45), thickness=-1)
 
 parallelogram_coords = np.array([[(400, 400), (450, 300), (550, 300), (500, 400)]], dtype=np.int32)
-cv2.fillPoly(image, [parallelogram_coords], color=(0, 55, 55))
+cv2.fillPoly(image, [parallelogram_coords], color=(55, 55, 255))
 
 rhombus_coords = np.array([[(10, 40), (40, 0), (70, 40), (40, 80)]], dtype=np.int32)
 cv2.fillPoly(image, [rhombus_coords], color=(231, 155, 211))
